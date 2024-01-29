@@ -1,0 +1,29 @@
+<!DOCTYPE html> 
+<html lang="ru"> 
+{% load static %}
+<body>
+    {%include 'includes/header.html'%}
+    <title>{%block title%}Таблица рецептов{% endblock %}</title>
+    <main>
+      {% block content%}
+      <div class="container py-5">
+        <h1>Таблица рецептов</h1>
+        <table border = '1'>
+          <tr>
+            <td>id</td>
+            <td>назвние рецепта</td>
+          </tr>
+          {% for recipe in recipes %}
+          <tr>
+            <td>{{recipe.id}}</td>
+            <td>{{recipe.name}}</td>
+          </tr>
+          {% endfor %}
+        </table>
+
+      </div>
+      {% endblock %}
+  </main>
+    {%include 'includes/footer.html'%}
+</body>
+</html> 
