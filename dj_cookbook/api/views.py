@@ -1,12 +1,15 @@
 from django.contrib.auth import get_user_model
+
 # from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
 # from django_filters.rest_framework import DjangoFilterBackend
 # from djoser.views import UserViewSet
 from rest_framework import filters, status, viewsets
+from rest_framework.decorators import api_view  # , renderer_classes
 from rest_framework.response import Response
 
+# from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from .models import Ingredient, Recipe  # IngredientInRecipe
 
 # from .filters import RecipeFilter
@@ -64,24 +67,33 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response({"errors": "Рецепт уже удален!"},
                         status=status.HTTP_400_BAD_REQUEST)
 
-    def cook_recipe(self, model, recipe_id):
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        model.objects.create(recipe=recipe)
-        # model.objects.
-        serializer = RecipeSerializer(recipe)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(("GET",))
+def cook_recipe(request, recipe_id):
+    recipe = get_object_or_404(Recipe, id=recipe_id)
+    ingredients = Ingredient.objects.filter(recipes__id=recipe.id)
+    for ingredient in ingredients:
+        ingredient.cooked_times += 1
+        ingredient.save(update_fields=["cooked_times"])
+    serializer = RecipeSerializer(recipe)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# class SessionViewSet(viewsets.ViewSet):
-#     queryset = Recipe.objects.all()
-#     serializer_class = RecipeSerializer
-
-
-def show_recipes_without_product(request):  # , product_id):
-    recipes = Recipe.objects.filter(
-        ingredients__id=1).filter(
-        ingredient_list__amount=10)
-    context = {
-        "recipes": recipes,
-    }
+@api_view(("GET",))
+def show_recipes_without_product(request, product_id):
+    recipes = Recipe.objects.filter(ingredients__id=product_id,
+                                    ingredient_list__amount__lte=10)
+    context = {"recipes": recipes}
     return render(request, "base.html", context)
+
+
+@api_view(("GET",))
+def add_product_to_recipe(request, recipe_id, product_id, weight):
+    recipe = get_object_or_404(Recipe, id=recipe_id)
+    ingredient = Ingredient.objects.get(recipes__id=recipe.id, id=product_id)
+    if ingredient:
+        ingredient.amount = weight
+        print(ingredient)
+        ingredient.save(update_fields=["amount"])
+    serializer = RecipeSerializer(recipe)
+    return Response(serializer.data, status=status.HTTP_200_OK)

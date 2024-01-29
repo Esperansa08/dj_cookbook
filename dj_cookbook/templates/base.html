@@ -1,14 +1,14 @@
-<!DOCTYPE html> 
-<html lang="ru"> 
+<!DOCTYPE html>
+<html lang="ru">
 {% load static %}
 <body>
     {%include 'includes/header.html'%}
     <title>{%block title%}Таблица рецептов{% endblock %}</title>
     <main>
-      {% block content%}
-      <div class="container py-5">
-        <h1>Таблица рецептов</h1>
-        <table border = '1'>
+      {% block content%} <div >
+      <div style="text-align: center;">
+        <h2>Таблица рецептов</h2>
+        <table width="140" border = '1' style="display: inline-block;">
           <tr>
             <td>id</td>
             <td>назвние рецепта</td>
@@ -26,4 +26,4 @@
   </main>
     {%include 'includes/footer.html'%}
 </body>
-</html> 
+</html>

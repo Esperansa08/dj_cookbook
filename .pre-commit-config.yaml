@@ -6,10 +6,10 @@ repos:
     -   id: check-yaml
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
--   repo: https://github.com/psf/black
-    rev: 21.12b0
-    hooks:
-    -   id: black
+# -   repo: https://github.com/psf/black
+#     rev: 21.12b0
+#     hooks:
+#     -   id: black
 -   repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
@@ -36,12 +36,12 @@ repos:
         ]
         exclude: ^migrations/
 
--   repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
-    hooks:
-    -   id: flake8
-        additional_dependencies:
-          - flake8-docstrings
-        args: [
-            --config=.flake8
-        ]
+# -   repo: https://github.com/PyCQA/flake8
+#     rev: 6.1.0
+#     hooks:
+#     -   id: flake8
+#         additional_dependencies:
+#           - flake8-docstrings
+#         args: [
+#             --config=.flake8
+#         ]

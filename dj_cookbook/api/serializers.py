@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+
 # from django.core import validators
 from django.db.models import F
 
@@ -6,17 +7,20 @@ from django.db.models import F
 from rest_framework import serializers  # , status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField
+
+from .models import Ingredient, IngredientInRecipe, Recipe
+
 # from rest_framework.relations import PrimaryKeyRelatedField
 # from rest_framework.validators import UniqueValidator
 
-from .models import Ingredient, IngredientInRecipe, Recipe
+
 # from .utils import clean_unique
 
 User = get_user_model()
 
 
-class CustomUserCreateSerializer(
-        serializers.ModelSerializer):  # UserCreateSerializer):
+# UserCreateSerializer):
+class CustomUserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("email", "username", "first_name", "last_name", "password")
 
@@ -27,13 +31,8 @@ class CustomUserSerializer(serializers.ModelSerializer):  # UserSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        fields = (
-            "email",
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "is_subscribed")
+        fields = ("email", "id", "username", "first_name", "last_name",
+                  "is_subscribed")
         model = User
 
 
@@ -68,11 +67,9 @@ class RecipeSerializerRead(serializers.ModelSerializer):
     def get_ingredients(self, obj):
         """Получение списка ингредиентов."""
         ingredients = obj.ingredients.values(
-            "id",
-            "name",
-            "measurement_unit",
-            "cooked_times",
-            amount=F("ingredientinrecipe__amount"))
+            "id", "name", "measurement_unit", "cooked_times",
+            amount=F("ingredientinrecipe__amount")
+        )
         return ingredients
 
 
@@ -115,8 +112,7 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
     def create(self, validated_data):
         # request = self.context.get('request')
         ingredients = validated_data.pop("ingredients")
-        recipe = Recipe.objects.create(
-            **validated_data)  # author=request.user,
+        recipe = Recipe.objects.create(**validated_data)
         self.create_ingredients(recipe=recipe, ingredients=ingredients)
         return recipe
 

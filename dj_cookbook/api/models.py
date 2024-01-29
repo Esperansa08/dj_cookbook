@@ -8,34 +8,34 @@ User = get_user_model()
 class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
-        verbose_name="Название ингредиента",)
-    measurement_unit = models.TextField(
-        max_length=200,
-        verbose_name="единицы измерения")
+        verbose_name="Название ингредиента",
+    )
+    measurement_unit = models.TextField(max_length=200,
+                                        verbose_name="единицы измерения")
     cooked_times = models.PositiveIntegerField(
         default=0,
         verbose_name="Количество раз приготовлен",
-        validators=[MinValueValidator(0)],)
+        validators=[MinValueValidator(0)],
+    )
 
     class Meta:
         verbose_name_plural = "Ингредиенты"
         verbose_name = "Ингредиент"
 
     def __str__(self):
-        return f"{self.name} {self.measurement_unit}"
+        return f"{self.name} {self.cooked_times} {self.measurement_unit} "
 
 
 class Recipe(models.Model):
-    name = models.TextField(
-        verbose_name="Название",
-        max_length=200,
-        help_text="Введите название")
+    name = models.TextField(verbose_name="Название", max_length=200,
+                            help_text="Введите название")
     ingredients = models.ManyToManyField(
         Ingredient,
         related_name="recipes",
         verbose_name="ингредиенты",
         help_text="Ингредиент из таблицы Ingredient",
-        through="IngredientInRecipe",)
+        through="IngredientInRecipe",
+    )
     # text = models.TextField(
     #     verbose_name='Описание',
     #     help_text='Введите описание')
@@ -72,7 +72,8 @@ class IngredientInRecipe(models.Model):
         default=0,
         validators=[MinValueValidator(0)],
         verbose_name="Количество",
-        help_text="Количество ингредиентов",)
+        help_text="Количество ингредиентов",
+    )
 
     class Meta:
         verbose_name = "Ингредиент-рецепт"

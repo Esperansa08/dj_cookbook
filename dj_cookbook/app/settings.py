@@ -102,5 +102,5 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-print("!!!!", STATIC_ROOT)
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

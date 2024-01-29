@@ -1,9 +1,8 @@
 import logging
 from csv import DictReader
 
+from api.models import Ingredient
 from django.core.management.base import BaseCommand
-
-from recipes.models import Ingredient
 
 MESSAGE = "Данные успешно загружены в таблицу"
 SUCCESS_MESSAGE = "Все данные успешно загружены"
