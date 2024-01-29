@@ -1,19 +1,16 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Sum
-from django.http import HttpResponse
+# from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
+
 # from django_filters.rest_framework import DjangoFilterBackend
 # from djoser.views import UserViewSet
 from rest_framework import filters, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from .models import Ingredient, IngredientInRecipe, Recipe
-#from .filters import RecipeFilter
-#from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+from .models import Ingredient, Recipe  # IngredientInRecipe
+
+# from .filters import RecipeFilter
 from .serializers import IngredientSerializer, RecipeSerializer
-#from .pagination import CustomPagination
 
 User = get_user_model()
 
@@ -30,7 +27,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('^name',)
+    search_fields = ("^name",)
     pagination_class = None
 
 
@@ -52,7 +49,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def add_recipe(self, model, user, pk):
         if model.objects.filter(user=user, recipe__id=pk).exists():
-            return Response({'errors': 'Рецепт уже добавлен!'},
+            return Response({"errors": "Рецепт уже добавлен!"},
                             status=status.HTTP_400_BAD_REQUEST)
         recipe = get_object_or_404(Recipe, id=pk)
         model.objects.create(user=user, recipe=recipe)
@@ -64,13 +61,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if recipe_del.exists():
             recipe_del.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'errors': 'Рецепт уже удален!'},
+        return Response({"errors": "Рецепт уже удален!"},
                         status=status.HTTP_400_BAD_REQUEST)
 
     def cook_recipe(self, model, recipe_id):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         model.objects.create(recipe=recipe)
-        #model.objects.
+        # model.objects.
         serializer = RecipeSerializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -79,8 +76,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
 #     queryset = Recipe.objects.all()
 #     serializer_class = RecipeSerializer
 
-def show_recipes_without_product(request):#, product_id):
-    recipes = Recipe.objects.filter(ingredients__id=1).filter(
-        ingredient_list__amount = 10 )
-    context = {'recipes': recipes, }
-    return render(request, 'base.html', context)
+
+def show_recipes_without_product(request):  # , product_id):
+    recipes = Recipe.objects.filter(
+        ingredients__id=1).filter(
+        ingredient_list__amount=10)
+    context = {
+        "recipes": recipes,
+    }
+    return render(request, "base.html", context)
