@@ -19,23 +19,6 @@ from .models import Ingredient, IngredientInRecipe, Recipe
 User = get_user_model()
 
 
-# UserCreateSerializer):
-class CustomUserCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ("email", "username", "first_name", "last_name", "password")
-
-        model = User
-
-
-class CustomUserSerializer(serializers.ModelSerializer):  # UserSerializer):
-    is_subscribed = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        fields = ("email", "id", "username", "first_name", "last_name",
-                  "is_subscribed")
-        model = User
-
-
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
@@ -43,9 +26,19 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
+    ingredients = serializers.SerializerMethodField()
+
     class Meta:
         model = Recipe
-        fields = ("id", "name")
+        fields = ("id", "name", 'ingredients')
+
+    def get_ingredients(self, obj):
+        """Получение списка ингредиентов."""
+        ingredients = obj.ingredients.values(
+            "id", "name", "measurement_unit", "cooked_times",
+            amount=F("ingredientinrecipe__amount")
+        )
+        return ingredients
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
@@ -53,11 +46,10 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientInRecipe
-        fields = ("id", "amount")
+        fields = ("id", "ingredient", "amount")
 
 
 class RecipeSerializerRead(serializers.ModelSerializer):
-    # author = CustomUserSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField()
 
     class Meta:
@@ -83,18 +75,16 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
     def validate_ingredients(self, ingredients):
         """Валидатор ингредиентов"""
         ingredient_list = []
-        massage = "Не должно быть повторяющихся ингредиентов"
+        # massage = "Не должно быть повторяющихся ингредиентов"
         for ingredient in ingredients:
             print(ingredient)
             if int(ingredient["amount"]) <= 0:
                 raise ValidationError("Выберите кол-во для ингредиента")
             if ingredient["id"] in ingredient_list:
-                raise ValidationError([{"ingredient": [massage]}, {}])
+                ingredient_list["id"] = ingredient["id"]
+                # raise ValidationError([{"ingredient": [massage]}, {}])
             ingredient_list.append(ingredient["id"])
         return ingredients
-
-    def to_representation(self, instance):
-        return RecipeSerializerRead(instance, context=self.context).data
 
     def create_ingredients(self, recipe, ingredients):
         """Создание списка ингредиентов"""
@@ -109,12 +99,12 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
             ]
         )
 
-    def create(self, validated_data):
-        # request = self.context.get('request')
-        ingredients = validated_data.pop("ingredients")
-        recipe = Recipe.objects.create(**validated_data)
-        self.create_ingredients(recipe=recipe, ingredients=ingredients)
-        return recipe
+    # def create(self, validated_data):
+    #     # request = self.context.get('request')
+    #     ingredients = validated_data.pop("ingredients")
+    #     recipe = Recipe.objects.create(**validated_data)
+    #     self.create_ingredients(recipe=recipe, ingredients=ingredients)
+    #     return recipe
 
     def update(self, instance, validated_data):
         ingredients = validated_data.pop("ingredients")
@@ -122,3 +112,21 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         instance.ingredients.clear()
         self.create_ingredients(recipe=instance, ingredients=ingredients)
         return instance
+
+
+class RecipesSerializer1(serializers.Serializer):
+    # product_id = serializers.ImageField()
+    # weight = serializers.ImageField()
+    ingredients = IngredientInRecipeSerializer(many=True, required=True)
+
+    class Meta:
+        model = Recipe
+        fields = ("id", "name", "ingredients")
+
+    def get_ingredients(self, obj):
+        """Получение списка ингредиентов."""
+        ingredients = obj.ingredients.values(
+            "id", "name", "measurement_unit", "cooked_times",
+            amount=F("ingredientinrecipe__amount")
+        )
+        return ingredients
