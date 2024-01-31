@@ -6,7 +6,6 @@
     <title>{%block title%}Таблица рецептов{% endblock %}</title>
     <main>
       {% block content%} <div >
-      <div style="text-align: center;">
         <h2>Таблица рецептов</h2>
         <table width="140" border = '1' style="display: inline-block;">
           <tr>
@@ -21,7 +20,6 @@
           {% endfor %}
         </table>
 
-      </div>
       {% endblock %}
   </main>
     {%include 'includes/footer.html'%}
