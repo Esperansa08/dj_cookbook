@@ -1,3 +1,5 @@
+from itertools import chain
+
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -29,9 +31,10 @@ def show_recipes_without_product(request, product_id):
     """возвращает HTML страницу, на которой размещена таблица.
     В таблице отображены id и названия всех рецептов, в которых указанный
     продукт отсутствует, или присутствует в количестве меньше 10 грамм"""
-    recipes = Recipe.objects.filter(
+    recipes = Recipe.objects.exclude(ingredients__id=product_id)
+    recipes_1 = Recipe.objects.filter(
         ingredients__id=product_id, ingredient_list__amount__lte=10)
-    context = {"recipes": recipes}
+    context = {"recipes": list(chain(recipes, recipes_1))}
     return render(request, "base.html", context)
 
 
