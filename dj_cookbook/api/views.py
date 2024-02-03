@@ -31,10 +31,10 @@ def show_recipes_without_product(request, product_id):
     """возвращает HTML страницу, на которой размещена таблица.
     В таблице отображены id и названия всех рецептов, в которых указанный
     продукт отсутствует, или присутствует в количестве меньше 10 грамм"""
-    recipes = Recipe.objects.exclude(ingredients__id=product_id)
-    recipes_1 = Recipe.objects.filter(
+    recipes_without_id = Recipe.objects.exclude(ingredients__id=product_id)
+    recipes_lte = Recipe.objects.filter(
         ingredients__id=product_id, ingredient_list__amount__lte=10)
-    context = {"recipes": list(chain(recipes, recipes_1))}
+    context = {"recipes": list(chain(recipes_without_id, recipes_lte))}
     return render(request, "base.html", context)
 
 
