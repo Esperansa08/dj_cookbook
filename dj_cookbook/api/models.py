@@ -11,7 +11,8 @@ class Ingredient(models.Model):
         verbose_name="Название ингредиента",
     )
     measurement_unit = models.TextField(
-        max_length=200, verbose_name="единицы измерения")
+        max_length=200,
+        verbose_name="единицы измерения")
     cooked_times = models.PositiveIntegerField(
         default=0,
         verbose_name="Количество раз приготовлен",
@@ -27,8 +28,10 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
-    name = models.TextField(verbose_name="Название",
-                            max_length=200, help_text="Введите название")
+    name = models.TextField(
+        verbose_name="Название",
+        max_length=200,
+        help_text="Введите название")
     ingredients = models.ManyToManyField(
         Ingredient,
         related_name="recipes",
@@ -48,9 +51,14 @@ class Recipe(models.Model):
 
 class IngredientInRecipe(models.Model):
     ingredient = models.ForeignKey(
-        Ingredient, verbose_name="ингредиенты", on_delete=models.CASCADE)
+        Ingredient,
+        verbose_name="ингредиенты",
+        on_delete=models.CASCADE)
     recipe = models.ForeignKey(
-        Recipe, verbose_name="рецепты", related_name="ingredient_list", on_delete=models.CASCADE
+        Recipe,
+        verbose_name="рецепты",
+        related_name="ingredient_list",
+        on_delete=models.CASCADE
     )
     amount = models.PositiveIntegerField(
         default=0,
@@ -64,7 +72,8 @@ class IngredientInRecipe(models.Model):
         verbose_name_plural = "Ингредиент-рецепт"
         constraints = [
             models.UniqueConstraint(
-                fields=["recipe", "ingredient"], name="Не должно быть одинаковых ингредиентов!"
+                fields=["recipe", "ingredient"],
+                name="Не должно быть одинаковых ингредиентов!"
             )
         ]
 

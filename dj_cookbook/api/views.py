@@ -1,4 +1,5 @@
 from itertools import chain
+from threading import Lock, Thread
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
@@ -8,21 +9,22 @@ from rest_framework.decorators import api_view
 from .models import Ingredient, IngredientInRecipe, Recipe
 
 User = get_user_model()
+mutex = Lock()
 
 
 @api_view(("GET",))
 def cook_recipe(request, recipe_id):
     """Увеличение на единицу количества приготовленных блюд для каждого
     продукта, входящего в указанный рецепт"""
-    recipe = get_object_or_404(Recipe, id=recipe_id)
-    ingredients = Ingredient.objects.filter(recipes__id=recipe.id)
-    for ingredient in ingredients:
-        ingredient.cooked_times += 1
-        ingredient.save(update_fields=["cooked_times"])
+    with mutex:
+        ingredients = Ingredient.objects.filter(recipes__id=recipe_id)
+        for ingredient in ingredients:
+            ingredient.cooked_times += 1
+            ingredient.save(update_fields=["cooked_times"])
     return HttpResponse(
-        f"""В рецепте {recipe} увеличено на 1 количества
-                        приготовленных блюд из: {list(({ingredient.name},
-                {ingredient.cooked_times}) for ingredient in ingredients)}"""
+        f"""В рецепте увеличено на 1 количества приготовленных блюд из:
+        {list(({ingredient.name},
+               {ingredient.cooked_times}) for ingredient in ingredients)}"""
     )
 
 
